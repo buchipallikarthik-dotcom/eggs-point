@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eggs Point</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one calm column page. Hero with a sealed-pack label as the key object, then packs, how it works, order builder, FAQ. */
+:root {
+  --bg: #f1f5f2;
+  --surface: #ffffff;
+  --fg: #16251f;
+  --muted: #55655e;
+  --line: #d3ddd7;
+  --yolk: #f0b400;
+  --yolk-ink: #2a2000;
+  --leaf: #1f6b4f;
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1713; --surface: #17231d; --fg: #eaf2ed; --muted: #9db0a6;
+    --line: #2a3b33; --yolk: #f5c332; --yolk-ink: #2a2000; --leaf: #5fcf9f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1713; --surface: #17231d; --fg: #eaf2ed; --muted: #9db0a6;
+  --line: #2a3b33; --yolk: #f5c332; --yolk-ink: #2a2000; --leaf: #5fcf9f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+.wrap { max-width: 1020px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.08; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.5rem, 7vw, 4.6rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.3rem; font-weight: 700; }
+p { margin: 0; }
+.label { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+a { color: var(--leaf); }
+:focus-visible { outline: 3px solid var(--yolk); outline-offset: 2px; }
+
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 20px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; }
+.egg { width: 22px; height: 28px; background: var(--yolk); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; display: inline-block; }
+nav { display: flex; gap: 20px; font-size: 0.95rem; flex-wrap: wrap; }
+nav a { color: var(--fg); text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+
+.hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; padding-block: 40px 56px; }
+.hero > * { min-width: 0; }
+.hero p.lead { font-size: 1.2rem; color: var(--muted); margin-top: 20px; max-width: 34ch; }
+.btn { display: inline-block; background: var(--yolk); color: var(--yolk-ink); font-weight: 600; font-family: var(--font-body); font-size: 1rem; padding: 14px 24px; border-radius: 6px; text-decoration: none; border: 0; cursor: pointer; }
+.btn:hover { filter: brightness(0.95); }
+.btn.ghost { background: transparent; color: var(--fg); border: 1.5px solid var(--line); }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+
+/* the pack label */
+.pack { background: var(--surface); border: 1.5px solid var(--fg); border-radius: 6px; padding: 20px; font-family: var(--font-mono); font-size: 0.82rem; max-width: 380px; justify-self: center; width: 100%; transform: rotate(1.5deg); }
+.pack .row { display: flex; justify-content: space-between; gap: 12px; padding-block: 8px; border-bottom: 1px dashed var(--line); }
+.pack .row:last-child { border-bottom: 0; }
+.pack .big { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; border-bottom: 3px solid var(--yolk); padding-bottom: 10px; margin-bottom: 6px; line-height: 1.1; }
+.pack .row span:last-child { text-align: right; font-weight: 500; }
+
+section { padding-block: 56px; border-top: 1px solid var(--line); }
+section > .label { display: block; margin-bottom: 12px; }
+.intro { color: var(--muted); max-width: 52ch; margin-top: 12px; }
+
+.packs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 32px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card .eggs { display: flex; gap: 6px; flex-wrap: wrap; min-height: 30px; }
+.card .eggs i { width: 18px; height: 24px; background: var(--fg); opacity: 0.88; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; display: inline-block; }
+.card .price { font-family: var(--font-display); font-size: 2rem; font-weight: 800; }
+.card .price small { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+.card p { color: var(--muted); font-size: 0.97rem; }
+.note { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); margin-top: 16px; }
+
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; margin-top: 32px; }
+.steps div { min-width: 0; }
+.steps h3 { margin-bottom: 8px; }
+.steps p { color: var(--muted); font-size: 0.97rem; }
+
+.order { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 28px; align-items: start; }
+.order > * { min-width: 0; }
+form { display: grid; gap: 16px; }
+label, .fieldlabel { font-weight: 600; font-size: 0.95rem; display: block; margin-bottom: 6px; }
+select, input[type="text"], input[type="number"] { width: 100%; font: inherit; color: var(--fg); background: var(--surface); border: 1.5px solid var(--line); border-radius: 6px; padding: 12px; }
+.out { background: var(--surface); border: 1.5px dashed var(--line); border-radius: 8px; padding: 20px; }
+.out pre { white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 0.88rem; margin: 12px 0 16px; line-height: 1.6; }
+.total { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; }
+.thanks { margin-top: 16px; font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--leaf); }
+.contact { margin-top: 24px; font-size: 0.97rem; }
+.contact b { font-family: var(--font-mono); font-weight: 500; user-select: all; }
+
+details { border-bottom: 1px solid var(--line); padding-block: 16px; }
+details summary { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; cursor: pointer; }
+details p { color: var(--muted); margin-top: 10px; max-width: 60ch; }
+
+footer { border-top: 1px solid var(--line); padding-top: 24px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 0.9rem; }
+
+/* hatching egg: base styles are the finished state (egg open, chick out) */
+.hatch { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding-block: 8px 0; }
+.hatch svg { width: 220px; max-width: 100%; height: auto; flex: none; }
+.hatch .words { min-width: 0; }
+.hatch .words h2 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; display: inline-block; border-bottom: 5px solid var(--yolk); padding-bottom: 4px; }
+.hatch .words p { color: var(--muted); margin-top: 12px; }
+.hatch .again { margin-top: 12px; padding: 8px 16px; font-size: 0.9rem; }
+.shell { fill: var(--surface); stroke: var(--fg); stroke-width: 3; stroke-linejoin: round; }
+.chick-body { fill: var(--yolk); stroke: var(--fg); stroke-width: 3; }
+.eye { fill: var(--fg); }
+.beak { fill: #e8742c; stroke: var(--fg); stroke-width: 2; stroke-linejoin: round; }
+.chick { transform: translateY(-40px); }
+.wig { transform-box: view-box; transform-origin: 100px 185px; }
+.shell-top { transform-box: fill-box; transform-origin: center; transform: translate(56px, -30px) rotate(32deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .hatch.play .wig { animation: wig 1.4s ease-in-out backwards; }
+  .hatch.play .shell-top { animation: topoff 0.5s ease-out 1.4s backwards; }
+  .hatch.play .chick { animation: rise 0.9s cubic-bezier(.34,1.56,.64,1) 1.9s backwards; }
+}
+@keyframes wig {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(-7deg); }
+  35% { transform: rotate(7deg); }
+  55% { transform: rotate(-5deg); }
+  75% { transform: rotate(4deg); }
+}
+@keyframes topoff { from { transform: translate(0, 0) rotate(0); } }
+@keyframes rise { from { transform: translateY(0); } }
+
+@media (max-width: 760px) {
+  .hero, .order { grid-template-columns: 1fr; }
+  .pack { transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn { transition: filter 0.15s; }
+}
+</style>
+<style>html{color-scheme:light dark}body{margin:0}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="egg" aria-hidden="true"></span> Eggs Point</div>
+    <nav aria-label="Main">
+      <a href="#packs">Packs</a>
+      <a href="#how">How it works</a>
+      <a href="#order">Order</a>
+      <a href="#faq">Questions</a>
+    </nav>
+  </header>
+
+  <div class="hatch play" id="hatch">
+    <svg viewBox="0 0 240 200" role="img" aria-label="An egg cracks open and a small yellow chick comes out">
+      <g class="chick">
+        <circle class="chick-body" cx="100" cy="138" r="26"></circle>
+        <ellipse class="chick-body" cx="76" cy="136" rx="7" ry="13" transform="rotate(12 76 136)"></ellipse>
+        <ellipse class="chick-body" cx="124" cy="136" rx="7" ry="13" transform="rotate(-12 124 136)"></ellipse>
+        <circle class="chick-body" cx="100" cy="112" r="18"></circle>
+        <path class="chick-body" d="M96 95 Q100 84 104 95" stroke-linecap="round"></path>
+        <circle class="eye" cx="93" cy="109" r="2.8"></circle>
+        <circle class="eye" cx="107" cy="109" r="2.8"></circle>
+        <path class="beak" d="M95 115 L105 115 L100 123 Z"></path>
+      </g>
+      <g class="wig">
+        <path class="shell" d="M45 118 L62 106 L78 122 L94 106 L110 122 L126 106 L142 122 L155 118 A55 70 0 0 1 45 118 Z"></path>
+        <path class="shell shell-top" d="M45 118 L62 106 L78 122 L94 106 L110 122 L126 106 L142 122 L155 118 A55 70 0 0 0 45 118 Z"></path>
+      </g>
+    </svg>
+    <div class="words">
+      <h2>Healthy life</h2>
+      <p>Eggs give you protein for the day. Start fresh with Eggs Point.</p>
+      <button class="btn ghost again" id="again" type="button">Hatch again</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div>
+      <h1>Boiled. Peeled. Sealed.</h1>
+      <p class="lead">Ready-to-eat boiled eggs in clean sealed packs. Open, eat, done.</p>
+      <div class="cta-row">
+        <a class="btn" href="#order">Order eggs</a>
+        <a class="btn ghost" href="#packs">See packs</a>
+      </div>
+    </div>
+    <div class="pack" role="img" aria-label="Example pack label with boiled date and best before date">
+      <div class="big">Boiled eggs<br>6 pcs, peeled</div>
+      <div class="row"><span>Boiled on</span><span>__ / __ / ____</span></div>
+      <div class="row"><span>Best before</span><span>__ / __ / ____</span></div>
+      <div class="row"><span>Keep at</span><span>0 to 4 °C</span></div>
+      <div class="row"><span>FSSAI Lic. No.</span><span>XXXXXXXXXXXXXX</span></div>
+    </div>
+  </div>
+
+  <section id="packs">
+    <span class="label">Packs</span>
+    <h2>Pick your pack</h2>
+    <p class="intro">Every pack carries a boiled-on date and a best-before date, so you know how fresh it is.</p>
+    <div class="packs">
+      <div class="card">
+        <div class="eggs" aria-hidden="true"><i></i><i></i></div>
+        <h3>Snack pack</h3>
+        <div class="price">₹24 <small>/ 2 eggs</small></div>
+        <p>One for now, one for later. Good for a quick snack.</p>
+      </div>
+      <div class="card">
+        <div class="eggs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <h3>Daily pack</h3>
+        <div class="price">₹66 <small>/ 6 eggs</small></div>
+        <p>Enough for a few days of breakfast or gym meals.</p>
+      </div>
+      <div class="card">
+        <div class="eggs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <h3>Family pack</h3>
+        <div class="price">₹126 <small>/ 12 eggs</small></div>
+        <p>A dozen for the whole house, or for the week.</p>
+      </div>
+    </div>
+    <p class="note">Sample prices. Change them to your real prices before you launch.</p>
+  </section>
+
+  <section id="how">
+    <span class="label">How it works</span>
+    <h2>From the pot to your door</h2>
+    <div class="steps">
+      <div>
+        <h3>We boil</h3>
+        <p>Fresh eggs, boiled fully and cooled the same day.</p>
+      </div>
+      <div>
+        <h3>We peel and seal</h3>
+        <p>Peeled by hand, packed and sealed so they stay clean.</p>
+      </div>
+      <div>
+        <h3>You keep it cold</h3>
+        <p>Put the pack in the fridge. Eat before the best-before date on the label.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="order">
+    <span class="label">Order</span>
+    <h2>Tell us what you want</h2>
+    <p class="intro">Fill in the form. It writes your order message. Copy it and send it to us.</p>
+    <div class="order">
+      <form id="orderForm" autocomplete="off">
+        <div>
+          <label for="pack">Pack</label>
+          <select id="pack">
+            <option value="Snack pack (2 eggs)|24">Snack pack, 2 eggs, ₹24</option>
+            <option value="Daily pack (6 eggs)|66" selected>Daily pack, 6 eggs, ₹66</option>
+            <option value="Family pack (12 eggs)|126">Family pack, 12 eggs, ₹126</option>
+          </select>
+        </div>
+        <div>
+          <label for="qty">How many packs</label>
+          <input id="qty" type="number" min="1" max="50" value="2" inputmode="numeric">
+        </div>
+        <div>
+          <label for="name">Your name</label>
+          <input id="name" type="text" placeholder="Your name">
+        </div>
+        <div>
+          <label for="addr">Delivery area</label>
+          <input id="addr" type="text" placeholder="Your area or address">
+        </div>
+      </form>
+      <div class="out">
+        <span class="label">Your order message</span>
+        <pre id="msg" aria-live="polite"></pre>
+        <div class="total" id="total"></div>
+        <div class="cta-row">
+          <button class="btn" id="copyBtn" type="button">Copy message</button>
+        </div>
+        <p class="thanks" id="thanks" hidden>Thank you for your order!</p>
+        <p class="contact">Send it to us on WhatsApp: <b>+91 93989 27415</b></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <span class="label">Questions</span>
+    <h2>Good to know</h2>
+    <details>
+      <summary>How long do the eggs last?</summary>
+      <p>Keep the pack closed in the fridge. The best-before date is printed on every label. Once opened, eat the eggs the same day.</p>
+    </details>
+    <details>
+      <summary>Do you deliver?</summary>
+      <p>Yes. Write your area in the order form and we will confirm if we can deliver there.</p>
+    </details>
+    <details>
+      <summary>Can I order for an office or a gym?</summary>
+      <p>Yes. Choose a bigger number of packs, or message us for a regular weekly order.</p>
+    </details>
+    <details>
+      <summary>How do I pay?</summary>
+      <p>Tell us how you want to pay when you send the message. Add your payment options here, for example UPI or cash on delivery.</p>
+    </details>
+  </section>
+
+  <footer>
+    <span>© Eggs Point · eggspoint.com</span>
+    <span>FSSAI Lic. No. XXXXXXXXXXXXXX</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var pack = document.getElementById('pack');
+  var qty = document.getElementById('qty');
+  var nameEl = document.getElementById('name');
+  var addr = document.getElementById('addr');
+  var msg = document.getElementById('msg');
+  var total = document.getElementById('total');
+  var btn = document.getElementById('copyBtn');
+  var text = '';
+
+  function update() {
+    var parts = pack.value.split('|');
+    var n = Math.max(1, Math.min(50, parseInt(qty.value, 10) || 1));
+    var sum = n * parseInt(parts[1], 10);
+    text = 'Hello, I want to order boiled eggs.\n' +
+      n + ' x ' + parts[0] + '\n' +
+      'Total: ₹' + sum + '\n' +
+      'Name: ' + (nameEl.value.trim() || '-') + '\n' +
+      'Delivery area: ' + (addr.value.trim() || '-');
+    msg.textContent = text;
+    total.textContent = 'Total ₹' + sum;
+  }
+
+  [pack, qty, nameEl, addr].forEach(function (el) {
+    el.addEventListener('input', update);
+    el.addEventListener('change', update);
+  });
+  document.getElementById('orderForm').addEventListener('submit', function (e) { e.preventDefault(); });
+
+  function selectMsg() {
+    var r = document.createRange();
+    r.selectNodeContents(msg);
+    var s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(r);
+  }
+
+  function cluck() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      var ctx = new AC();
+      var pulses = [[0, 0.09, 620, 300], [0.14, 0.09, 600, 290], [0.28, 0.09, 640, 310], [0.46, 0.28, 420, 760]];
+      pulses.forEach(function (p) {
+        var t = ctx.currentTime + p[0];
+        var o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(p[2], t);
+        o.frequency.exponentialRampToValueAtTime(p[3], t + p[1]);
+        f.type = 'bandpass'; f.frequency.value = 1100; f.Q.value = 2.5;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.5, t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + p[1]);
+        o.connect(f); f.connect(g); g.connect(ctx.destination);
+        o.start(t); o.stop(t + p[1] + 0.02);
+      });
+      setTimeout(function () { ctx.close(); }, 1500);
+    } catch (e) {}
+  }
+
+  function thanks() {
+    cluck();
+    document.getElementById('thanks').hidden = false;
+    try {
+      if (window.speechSynthesis) {
+        var u = new SpeechSynthesisUtterance('Thank you for your order');
+        setTimeout(function () { window.speechSynthesis.speak(u); }, 1000);
+      }
+    } catch (e) {}
+  }
+
+  btn.addEventListener('click', function () {
+    thanks();
+    function done(ok) {
+      btn.textContent = ok ? 'Copied' : 'Select the text and copy it';
+      setTimeout(function () { btn.textContent = 'Copy message'; }, 2200);
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { selectMsg(); done(false); });
+    } catch (e) { selectMsg(); done(false); }
+  });
+
+  update();
+
+  var hatch = document.getElementById('hatch');
+  document.getElementById('again').addEventListener('click', function () {
+    hatch.classList.remove('play');
+    void hatch.getBoundingClientRect();
+    hatch.classList.add('play');
+  });
+})();
+</script>
+</body>
+</html>
